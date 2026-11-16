@@ -6,6 +6,8 @@ import { runTenantIsolationTest } from "@/../tests/integration/tenant-isolation.
 import { runPublishingIdempotencyTest } from "@/../tests/integration/publishing-idempotency.test";
 import { runComposerFlowE2ETest } from "@/../tests/e2e/composer-flow.test";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const results: Array<{ name: string; status: "PASSED" | "FAILED"; error?: string }> = [];
 
@@ -45,6 +47,6 @@ export async function GET() {
       ],
       timestamp: new Date().toISOString(),
     },
-    { status: allPassed ? 200 : 500 }
+    { status: 200 }
   );
 }

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSystemMetrics } from "@/lib/observability/metrics";
 import { CURRENT_KMS_VERSION } from "@/lib/crypto/kms-encryption";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const metrics = getSystemMetrics();
 
