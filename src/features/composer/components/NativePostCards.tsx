@@ -54,12 +54,12 @@ function InstagramCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProp
   const [saved, setSaved] = useState(false);
 
   return (
-    <div className="max-w-[420px] mx-auto rounded-2xl bg-black border border-white/10 overflow-hidden shadow-2xl text-white font-sans text-xs">
+    <div className="social-preview-card max-w-[420px] w-full mx-auto rounded-2xl bg-black border border-white/15 overflow-hidden shadow-2xl font-sans text-xs" style={{ backgroundColor: "#000000", color: "#ffffff" }}>
       {/* Header */}
-      <div className="p-3 flex items-center justify-between border-b border-white/5">
+      <div className="p-3 flex items-center justify-between border-b border-white/10" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
         <div className="flex items-center gap-2.5">
           <div
-            className="h-8 w-8 rounded-full p-0.5"
+            className="h-8 w-8 rounded-full p-0.5 shrink-0"
             style={{
               background: `linear-gradient(45deg, ${brand.brandKit?.primaryColor || "#f59e0b"}, #ec4899, #8b5cf6)`,
             }}
@@ -73,19 +73,19 @@ function InstagramCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProp
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-xs tracking-tight">
+              <span className="font-semibold text-xs tracking-tight text-white" style={{ color: "#ffffff" }}>
                 {brand.socialAccounts?.[0]?.handle || "@brand"}
               </span>
-              <CheckCircle2 className="h-3 w-3 text-sky-400 fill-sky-400" />
+              <CheckCircle2 className="h-3 w-3 text-sky-400 fill-sky-400" style={{ color: "#38bdf8" }} />
             </div>
-            <span className="text-[10px] text-slate-400">Original Audio</span>
+            <span className="text-[10px] text-slate-300 block" style={{ color: "#cbd5e1" }}>Original Audio</span>
           </div>
         </div>
-        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+        <MoreHorizontal className="h-4 w-4 text-slate-300" style={{ color: "#cbd5e1" }} />
       </div>
 
       {/* Media container */}
-      <div className="relative aspect-[4/5] bg-slate-950 overflow-hidden">
+      <div className="relative aspect-[4/5] bg-slate-950 overflow-hidden" style={{ backgroundColor: "#020617" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt="Instagram Media" className="w-full h-full object-cover" />
       </div>
@@ -95,43 +95,45 @@ function InstagramCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProp
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
+              type="button"
               onClick={() => setLiked(!liked)}
-              className={`transition-colors ${liked ? "text-rose-500 fill-rose-500" : "text-white"}`}
+              className="transition-colors hover:opacity-80"
+              style={{ color: liked ? "#f43f5e" : "#ffffff" }}
             >
-              <Heart className={`h-5 w-5 ${liked ? "fill-rose-500" : ""}`} />
+              <Heart className={`h-5 w-5 ${liked ? "fill-rose-500 text-rose-500" : "text-white"}`} style={{ stroke: liked ? "#f43f5e" : "#ffffff", fill: liked ? "#f43f5e" : "none" }} />
             </button>
-            <button className="text-white hover:text-slate-300">
-              <MessageCircle className="h-5 w-5" />
+            <button type="button" className="text-white hover:opacity-80" style={{ color: "#ffffff" }}>
+              <MessageCircle className="h-5 w-5" style={{ stroke: "#ffffff" }} />
             </button>
-            <button className="text-white hover:text-slate-300">
-              <Send className="h-5 w-5" />
+            <button type="button" className="text-white hover:opacity-80" style={{ color: "#ffffff" }}>
+              <Send className="h-5 w-5" style={{ stroke: "#ffffff" }} />
             </button>
           </div>
-          <button onClick={() => setSaved(!saved)} className="text-white">
-            <Bookmark className={`h-5 w-5 ${saved ? "fill-white" : ""}`} />
+          <button type="button" onClick={() => setSaved(!saved)} className="text-white hover:opacity-80" style={{ color: "#ffffff" }}>
+            <Bookmark className={`h-5 w-5 ${saved ? "fill-white" : ""}`} style={{ stroke: "#ffffff", fill: saved ? "#ffffff" : "none" }} />
           </button>
         </div>
 
         {/* Likes count */}
-        <p className="font-semibold text-[11px] text-white">
+        <p className="font-semibold text-[11px] text-white" style={{ color: "#ffffff" }}>
           {liked ? "1,429 likes" : "1,428 likes"}
         </p>
 
         {/* Caption */}
-        <div className="text-[11px] leading-relaxed text-slate-200">
-          <span className="font-bold text-white mr-1.5">
+        <div className="text-[11px] leading-relaxed text-slate-100" style={{ color: "#f1f5f9" }}>
+          <span className="font-bold text-white mr-1.5" style={{ color: "#ffffff" }}>
             {brand.socialAccounts?.[0]?.handle || "brand"}
           </span>
-          <span>{caption}</span>
-          <div className="mt-1 text-sky-400 font-medium">
+          <span style={{ color: "#f1f5f9" }}>{caption}</span>
+          <div className="mt-1 font-medium" style={{ color: "#38bdf8" }}>
             {hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
           </div>
         </div>
 
-        <p className="text-[10px] text-slate-400 cursor-pointer pt-1">
+        <p className="text-[10px] cursor-pointer pt-1" style={{ color: "#94a3b8" }}>
           View all 48 comments
         </p>
-        <p className="text-[9px] uppercase tracking-wider text-slate-500">
+        <p className="text-[9px] uppercase tracking-wider font-medium" style={{ color: "#64748b" }}>
           2 hours ago
         </p>
       </div>
@@ -144,84 +146,86 @@ function LinkedInCard({ brand, caption, hashtags, mediaUrl, ctaText, ctaUrl }: N
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="max-w-[480px] mx-auto rounded-2xl bg-[#1B1F23] border border-white/10 overflow-hidden shadow-2xl text-white font-sans text-xs">
+    <div className="social-preview-card max-w-[480px] w-full mx-auto rounded-2xl bg-[#1B1F23] border border-white/15 overflow-hidden shadow-2xl font-sans text-xs" style={{ backgroundColor: "#1B1F23", color: "#ffffff" }}>
       {/* Author Header */}
-      <div className="p-4 flex items-start justify-between border-b border-white/5">
+      <div className="p-4 flex items-start justify-between border-b border-white/10" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={brand.socialAccounts?.[0]?.avatarUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80"}
             alt={brand.name}
-            className="h-10 w-10 rounded-full object-cover border border-white/20"
+            className="h-10 w-10 rounded-full object-cover border border-white/20 shrink-0"
           />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm text-white">{brand.name}</span>
-              <span className="text-[10px] text-slate-400">&bull; 1st</span>
+              <span className="font-bold text-sm text-white" style={{ color: "#ffffff" }}>{brand.name}</span>
+              <span className="text-[10px]" style={{ color: "#94a3b8" }}>&bull; 1st</span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-tight">{brand.tagline || brand.industry}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">1d &bull; Edited &bull; 🌐</p>
+            <p className="text-[11px] leading-tight" style={{ color: "#cbd5e1" }}>{brand.tagline || brand.industry}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "#94a3b8" }}>1d &bull; Edited &bull; 🌐</p>
           </div>
         </div>
-        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+        <MoreHorizontal className="h-4 w-4" style={{ color: "#94a3b8" }} />
       </div>
 
       {/* Copy */}
-      <div className="px-4 py-3 text-xs text-slate-200 whitespace-pre-line leading-relaxed">
+      <div className="px-4 py-3 text-xs whitespace-pre-line leading-relaxed" style={{ color: "#f1f5f9" }}>
         {expanded ? caption : caption.slice(0, 160) + (caption.length > 160 ? "..." : "")}
         {caption.length > 160 && !expanded && (
           <button
+            type="button"
             onClick={() => setExpanded(true)}
-            className="text-slate-400 hover:text-white font-semibold ml-1"
+            className="font-semibold ml-1 hover:underline"
+            style={{ color: "#38bdf8" }}
           >
             see more
           </button>
         )}
-        <div className="mt-2 text-sky-400 font-semibold">
+        <div className="mt-2 font-semibold" style={{ color: "#38bdf8" }}>
           {hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
         </div>
       </div>
 
       {/* Media */}
-      <div className="aspect-[16/9] bg-slate-950 overflow-hidden">
+      <div className="aspect-[16/9] bg-slate-950 overflow-hidden" style={{ backgroundColor: "#020617" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt="LinkedIn Media" className="w-full h-full object-cover" />
       </div>
 
       {/* CTA Box */}
       {ctaText && (
-        <div className="p-3 bg-slate-900 border-t border-b border-white/5 flex items-center justify-between">
-          <span className="font-semibold text-xs text-white">{ctaText}</span>
-          <span className="text-[10px] text-slate-400 flex items-center gap-1">
-            {brand.website || "luminacreative.studio"} <ExternalLink className="h-3 w-3" />
+        <div className="p-3 bg-slate-900 border-t border-b border-white/10 flex items-center justify-between" style={{ backgroundColor: "#0f172a", borderColor: "rgba(255,255,255,0.1)" }}>
+          <span className="font-semibold text-xs text-white" style={{ color: "#ffffff" }}>{ctaText}</span>
+          <span className="text-[10px] flex items-center gap-1" style={{ color: "#cbd5e1" }}>
+            {brand.website || "luminacreative.studio"} <ExternalLink className="h-3 w-3" style={{ stroke: "#cbd5e1" }} />
           </span>
         </div>
       )}
 
       {/* Reactions Bar */}
-      <div className="p-3 border-t border-white/5 space-y-2">
-        <div className="flex items-center justify-between text-[10px] text-slate-400 pb-2 border-b border-white/5">
+      <div className="p-3 border-t border-white/10 space-y-2" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+        <div className="flex items-center justify-between text-[10px] pb-2 border-b border-white/10" style={{ color: "#94a3b8", borderColor: "rgba(255,255,255,0.1)" }}>
           <div className="flex items-center gap-1">
             <span className="h-4 w-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]">👍</span>
             <span className="h-4 w-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">❤️</span>
             <span className="h-4 w-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[9px]">💡</span>
-            <span className="ml-1">842</span>
+            <span className="ml-1 font-medium" style={{ color: "#e2e8f0" }}>842</span>
           </div>
           <span>36 comments &bull; 12 reposts</span>
         </div>
 
-        <div className="flex items-center justify-around pt-1 text-slate-400 text-xs">
-          <button className="flex items-center gap-1.5 hover:text-white py-1">
-            <ThumbsUp className="h-4 w-4" /> Like
+        <div className="flex items-center justify-around pt-1 text-xs" style={{ color: "#cbd5e1" }}>
+          <button type="button" className="flex items-center gap-1.5 hover:text-white py-1" style={{ color: "#cbd5e1" }}>
+            <ThumbsUp className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Like
           </button>
-          <button className="flex items-center gap-1.5 hover:text-white py-1">
-            <MessageCircle className="h-4 w-4" /> Comment
+          <button type="button" className="flex items-center gap-1.5 hover:text-white py-1" style={{ color: "#cbd5e1" }}>
+            <MessageCircle className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Comment
           </button>
-          <button className="flex items-center gap-1.5 hover:text-white py-1">
-            <Repeat2 className="h-4 w-4" /> Repost
+          <button type="button" className="flex items-center gap-1.5 hover:text-white py-1" style={{ color: "#cbd5e1" }}>
+            <Repeat2 className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Repost
           </button>
-          <button className="flex items-center gap-1.5 hover:text-white py-1">
-            <Send className="h-4 w-4" /> Send
+          <button type="button" className="flex items-center gap-1.5 hover:text-white py-1" style={{ color: "#cbd5e1" }}>
+            <Send className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Send
           </button>
         </div>
       </div>
@@ -232,7 +236,7 @@ function LinkedInCard({ brand, caption, hashtags, mediaUrl, ctaText, ctaUrl }: N
 // 3. X (TWITTER) TWEET CARD
 function XTweetCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProps) {
   return (
-    <div className="max-w-[460px] mx-auto rounded-2xl bg-black border border-white/10 p-4 shadow-2xl text-white font-sans text-xs space-y-3">
+    <div className="social-preview-card max-w-[460px] w-full mx-auto rounded-2xl bg-black border border-white/15 p-4 shadow-2xl font-sans text-xs space-y-3" style={{ backgroundColor: "#000000", color: "#ffffff" }}>
       {/* Author */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
@@ -240,51 +244,51 @@ function XTweetCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProps) 
           <img
             src={brand.socialAccounts?.[0]?.avatarUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80"}
             alt={brand.name}
-            className="h-10 w-10 rounded-full object-cover border border-white/10"
+            className="h-10 w-10 rounded-full object-cover border border-white/15 shrink-0"
           />
           <div>
             <div className="flex items-center gap-1">
-              <span className="font-bold text-sm text-white">{brand.name}</span>
-              <CheckCircle2 className="h-3.5 w-3.5 text-sky-400 fill-sky-400" />
+              <span className="font-bold text-sm text-white" style={{ color: "#ffffff" }}>{brand.name}</span>
+              <CheckCircle2 className="h-3.5 w-3.5 text-sky-400 fill-sky-400" style={{ color: "#38bdf8" }} />
             </div>
-            <span className="text-slate-400 text-[11px] font-mono">
+            <span className="text-[11px] font-mono" style={{ color: "#94a3b8" }}>
               {brand.socialAccounts?.[0]?.handle || "@brand"} &bull; 2h
             </span>
           </div>
         </div>
-        <MoreHorizontal className="h-4 w-4 text-slate-500" />
+        <MoreHorizontal className="h-4 w-4" style={{ color: "#64748b" }} />
       </div>
 
       {/* Tweet Body */}
-      <p className="text-xs text-slate-100 leading-relaxed">{caption}</p>
+      <p className="text-xs leading-relaxed" style={{ color: "#f8fafc" }}>{caption}</p>
       {hashtags.length > 0 && (
-        <p className="text-sky-400 text-xs">
+        <p className="text-xs font-medium" style={{ color: "#38bdf8" }}>
           {hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
         </p>
       )}
 
       {/* Media */}
-      <div className="rounded-xl overflow-hidden border border-white/10 aspect-[16/9] bg-slate-950">
+      <div className="rounded-xl overflow-hidden border border-white/15 aspect-[16/9] bg-slate-950" style={{ backgroundColor: "#020617", borderColor: "rgba(255,255,255,0.15)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt="X Media" className="w-full h-full object-cover" />
       </div>
 
       {/* Metrics Row */}
-      <div className="pt-2 flex items-center justify-between text-slate-400 text-[11px]">
-        <button className="flex items-center gap-1 hover:text-sky-400">
-          <MessageCircle className="h-4 w-4" /> 18
+      <div className="pt-2 flex items-center justify-between text-[11px]" style={{ color: "#94a3b8" }}>
+        <button type="button" className="flex items-center gap-1 hover:text-sky-400" style={{ color: "#94a3b8" }}>
+          <MessageCircle className="h-4 w-4" style={{ stroke: "#94a3b8" }} /> 18
         </button>
-        <button className="flex items-center gap-1 hover:text-emerald-400">
-          <Repeat2 className="h-4 w-4" /> 42
+        <button type="button" className="flex items-center gap-1 hover:text-emerald-400" style={{ color: "#94a3b8" }}>
+          <Repeat2 className="h-4 w-4" style={{ stroke: "#94a3b8" }} /> 42
         </button>
-        <button className="flex items-center gap-1 hover:text-rose-400">
-          <Heart className="h-4 w-4" /> 312
+        <button type="button" className="flex items-center gap-1 hover:text-rose-400" style={{ color: "#94a3b8" }}>
+          <Heart className="h-4 w-4" style={{ stroke: "#94a3b8" }} /> 312
         </button>
-        <button className="flex items-center gap-1 hover:text-sky-400">
-          <BarChart2 className="h-4 w-4" /> 14.8K
+        <button type="button" className="flex items-center gap-1 hover:text-sky-400" style={{ color: "#94a3b8" }}>
+          <BarChart2 className="h-4 w-4" style={{ stroke: "#94a3b8" }} /> 14.8K
         </button>
-        <button className="hover:text-white">
-          <Share2 className="h-4 w-4" />
+        <button type="button" className="hover:text-white" style={{ color: "#94a3b8" }}>
+          <Share2 className="h-4 w-4" style={{ stroke: "#94a3b8" }} />
         </button>
       </div>
     </div>
@@ -294,42 +298,42 @@ function XTweetCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProps) 
 // 4. FACEBOOK CARD
 function FacebookCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProps) {
   return (
-    <div className="max-w-[460px] mx-auto rounded-2xl bg-[#242526] border border-white/10 overflow-hidden shadow-2xl text-white font-sans text-xs">
+    <div className="social-preview-card max-w-[460px] w-full mx-auto rounded-2xl bg-[#242526] border border-white/15 overflow-hidden shadow-2xl font-sans text-xs" style={{ backgroundColor: "#242526", color: "#ffffff" }}>
       <div className="p-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={brand.socialAccounts?.[0]?.avatarUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80"}
             alt={brand.name}
-            className="h-10 w-10 rounded-full object-cover border border-white/10"
+            className="h-10 w-10 rounded-full object-cover border border-white/15 shrink-0"
           />
           <div>
-            <p className="font-bold text-sm text-white">{brand.name}</p>
-            <p className="text-[10px] text-slate-400">Yesterday at 3:15 PM &bull; 🌐</p>
+            <p className="font-bold text-sm text-white" style={{ color: "#ffffff" }}>{brand.name}</p>
+            <p className="text-[10px]" style={{ color: "#cbd5e1" }}>Yesterday at 3:15 PM &bull; 🌐</p>
           </div>
         </div>
-        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+        <MoreHorizontal className="h-4 w-4" style={{ color: "#cbd5e1" }} />
       </div>
 
-      <div className="px-3.5 pb-2.5 text-xs text-slate-200">
-        <p>{caption}</p>
-        <p className="text-sky-400 mt-1">{hashtags.map((h) => `#${h.replace('#', '')}`).join(" ")}</p>
+      <div className="px-3.5 pb-2.5 text-xs">
+        <p style={{ color: "#f1f5f9" }}>{caption}</p>
+        <p className="mt-1 font-medium" style={{ color: "#38bdf8" }}>{hashtags.map((h) => `#${h.replace('#', '')}`).join(" ")}</p>
       </div>
 
-      <div className="aspect-square bg-slate-950 overflow-hidden">
+      <div className="aspect-square bg-slate-950 overflow-hidden" style={{ backgroundColor: "#020617" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt="Facebook" className="w-full h-full object-cover" />
       </div>
 
-      <div className="p-3 flex items-center justify-around border-t border-white/10 text-slate-400">
-        <button className="flex items-center gap-1.5 hover:text-white">
-          <ThumbsUp className="h-4 w-4" /> Like
+      <div className="p-3 flex items-center justify-around border-t border-white/10" style={{ borderColor: "rgba(255,255,255,0.1)", color: "#cbd5e1" }}>
+        <button type="button" className="flex items-center gap-1.5 hover:text-white" style={{ color: "#cbd5e1" }}>
+          <ThumbsUp className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Like
         </button>
-        <button className="flex items-center gap-1.5 hover:text-white">
-          <MessageCircle className="h-4 w-4" /> Comment
+        <button type="button" className="flex items-center gap-1.5 hover:text-white" style={{ color: "#cbd5e1" }}>
+          <MessageCircle className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Comment
         </button>
-        <button className="flex items-center gap-1.5 hover:text-white">
-          <Share2 className="h-4 w-4" /> Share
+        <button type="button" className="flex items-center gap-1.5 hover:text-white" style={{ color: "#cbd5e1" }}>
+          <Share2 className="h-4 w-4" style={{ stroke: "#cbd5e1" }} /> Share
         </button>
       </div>
     </div>
@@ -339,21 +343,21 @@ function FacebookCard({ brand, caption, hashtags, mediaUrl }: NativePreviewProps
 // 5. PINTEREST CARD
 function PinterestCard({ brand, caption, mediaUrl }: NativePreviewProps) {
   return (
-    <div className="max-w-[320px] mx-auto rounded-3xl bg-slate-900 border border-white/10 overflow-hidden shadow-2xl text-white font-sans text-xs">
-      <div className="relative aspect-[4/5] bg-slate-950 overflow-hidden group">
+    <div className="social-preview-card max-w-[320px] w-full mx-auto rounded-3xl bg-slate-900 border border-white/15 overflow-hidden shadow-2xl font-sans text-xs" style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>
+      <div className="relative aspect-[4/5] bg-slate-950 overflow-hidden group" style={{ backgroundColor: "#020617" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt="Pinterest" className="w-full h-full object-cover" />
-        <div className="absolute top-3 right-3 opacity-90 hover:opacity-100">
-          <span className="px-3.5 py-1.5 rounded-full bg-red-600 text-white font-bold text-xs shadow-md">
+        <div className="absolute top-3 right-3 opacity-95 hover:opacity-100">
+          <span className="px-3.5 py-1.5 rounded-full bg-red-600 text-white font-bold text-xs shadow-md" style={{ backgroundColor: "#dc2626", color: "#ffffff" }}>
             Save
           </span>
         </div>
       </div>
       <div className="p-3.5 space-y-1">
-        <h4 className="font-bold text-sm text-white line-clamp-1">{caption.slice(0, 45)}</h4>
-        <p className="text-[11px] text-slate-400 line-clamp-2">{caption}</p>
-        <div className="pt-2 flex items-center gap-2 text-[10px] text-slate-400">
-          <span className="font-medium text-white">{brand.name}</span>
+        <h4 className="font-bold text-sm text-white line-clamp-1" style={{ color: "#ffffff" }}>{caption.slice(0, 45)}</h4>
+        <p className="text-[11px] line-clamp-2" style={{ color: "#cbd5e1" }}>{caption}</p>
+        <div className="pt-2 flex items-center gap-2 text-[10px]" style={{ color: "#94a3b8" }}>
+          <span className="font-medium text-white" style={{ color: "#ffffff" }}>{brand.name}</span>
         </div>
       </div>
     </div>
@@ -363,13 +367,13 @@ function PinterestCard({ brand, caption, mediaUrl }: NativePreviewProps) {
 // Generic Card Fallback
 function GenericCard({ platform, brand, caption, mediaUrl }: NativePreviewProps) {
   return (
-    <div className="max-w-[420px] mx-auto rounded-2xl bg-slate-900 border border-white/10 p-4 shadow-xl text-white text-xs space-y-3">
-      <div className="flex items-center justify-between border-b border-white/10 pb-2">
-        <span className="font-bold text-sm text-white">{brand.name}</span>
-        <span className="text-[10px] text-slate-400 uppercase font-mono">{platform} Preview</span>
+    <div className="social-preview-card max-w-[420px] w-full mx-auto rounded-2xl bg-slate-900 border border-white/15 p-4 shadow-xl text-xs space-y-3" style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>
+      <div className="flex items-center justify-between border-b border-white/10 pb-2" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+        <span className="font-bold text-sm text-white" style={{ color: "#ffffff" }}>{brand.name}</span>
+        <span className="text-[10px] uppercase font-mono" style={{ color: "#94a3b8" }}>{platform} Preview</span>
       </div>
-      <p className="text-slate-200">{caption}</p>
-      <div className="aspect-video rounded-xl bg-slate-950 overflow-hidden">
+      <p style={{ color: "#f1f5f9" }}>{caption}</p>
+      <div className="aspect-video rounded-xl bg-slate-950 overflow-hidden" style={{ backgroundColor: "#020617" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mediaUrl} alt={platform} className="w-full h-full object-cover" />
       </div>

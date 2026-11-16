@@ -362,6 +362,100 @@ html:not(.dark) .text-orange-300 {
 /* PRESERVE CRISP WHITE TEXT ON SOLID BRAND & DARK ACTION BUTTONS, BADGES, AND AVATARS */
 [class*="!text-white"],
 [class*="!text-white"] *,
+.social-preview-card,
+.social-preview-card *,
+html.light .social-preview-card,
+html:not(.dark) .social-preview-card,
+html.light .social-preview-card *,
+html:not(.dark) .social-preview-card * {
+  color-scheme: dark !important;
+}
+
+/* Explicit color preservation inside social preview cards */
+html.light .social-preview-card,
+html:not(.dark) .social-preview-card {
+  color: #ffffff !important;
+}
+
+html.light .social-preview-card .text-white,
+html:not(.dark) .social-preview-card .text-white,
+html.light .social-preview-card span.text-white,
+html:not(.dark) .social-preview-card span.text-white,
+html.light .social-preview-card p.text-white,
+html:not(.dark) .social-preview-card p.text-white,
+html.light .social-preview-card button.text-white,
+html:not(.dark) .social-preview-card button.text-white {
+  color: #ffffff !important;
+}
+
+html.light .social-preview-card .text-slate-100,
+html:not(.dark) .social-preview-card .text-slate-100 {
+  color: #f1f5f9 !important;
+}
+
+html.light .social-preview-card .text-slate-200,
+html:not(.dark) .social-preview-card .text-slate-200 {
+  color: #e2e8f0 !important;
+}
+
+html.light .social-preview-card .text-slate-300,
+html:not(.dark) .social-preview-card .text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+html.light .social-preview-card .text-slate-400,
+html:not(.dark) .social-preview-card .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+html.light .social-preview-card .text-slate-500,
+html:not(.dark) .social-preview-card .text-slate-500 {
+  color: #64748b !important;
+}
+
+html.light .social-preview-card .text-sky-400,
+html:not(.dark) .social-preview-card .text-sky-400 {
+  color: #38bdf8 !important;
+}
+
+html.light .social-preview-card button,
+html:not(.dark) .social-preview-card button {
+  color: #ffffff !important;
+}
+
+html.light .social-preview-card button svg,
+html:not(.dark) .social-preview-card button svg {
+  stroke: currentColor !important;
+}
+
+/* Prevent light-mode background overrides inside social preview cards */
+html.light .social-preview-card.bg-black,
+html:not(.dark) .social-preview-card.bg-black {
+  background-color: #000000 !important;
+}
+
+html.light .social-preview-card.bg-\[\#1B1F23\],
+html:not(.dark) .social-preview-card.bg-\[\#1B1F23\] {
+  background-color: #1b1f23 !important;
+}
+
+html.light .social-preview-card.bg-\[\#242526\],
+html:not(.dark) .social-preview-card.bg-\[\#242526\] {
+  background-color: #242526 !important;
+}
+
+html.light .social-preview-card.bg-slate-900,
+html:not(.dark) .social-preview-card.bg-slate-900,
+html.light .social-preview-card .bg-slate-900,
+html:not(.dark) .social-preview-card .bg-slate-900 {
+  background-color: #0f172a !important;
+}
+
+html.light .social-preview-card .bg-slate-950,
+html:not(.dark) .social-preview-card .bg-slate-950 {
+  background-color: #020617 !important;
+}
+
 button.bg-blue-600,
 button.bg-blue-600 *,
 button.bg-blue-700,
