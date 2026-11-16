@@ -110,17 +110,57 @@ export async function POST(request: Request) {
     const createdBrand = newBrand?.[0];
 
     // Insert brand kit into Supabase
+    const primaryColor = body.primaryColor || body.brandKit?.primaryColor || "#3B82F6";
+    const secondaryColor = body.secondaryColor || body.brandKit?.secondaryColor || "#0F172A";
+    const accentColor = body.accentColor || body.brandKit?.accentColor || "#F43F5E";
+    const toneKeywords = body.toneKeywords || body.brandKit?.toneKeywords || ["Modern", "Professional"];
+    const toneDirectives = body.toneDirectives || body.brandKit?.toneDirectives || "Speak with clarity and precision.";
+    const targetAudience = body.targetAudience || body.brandKit?.targetAudience || "Modern digital audience";
+
+    let createdKit: any = null;
     if (createdBrand) {
-      await supabaseAdmin.from("brand_kits").insert({
+      const { data: kitData } = await supabaseAdmin.from("brand_kits").insert({
         brand_id: createdBrand.id,
-        primary_color: body.primaryColor || "#3B82F6",
-        secondary_color: body.secondaryColor || "#0F172A",
-        accent_color: body.accentColor || "#F43F5E",
-        tone_directives: body.toneDirectives || "Speak with clarity and precision.",
-      });
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
+        accent_color: accentColor,
+        tone_keywords: toneKeywords,
+        tone_directives: toneDirectives,
+        target_audience: targetAudience,
+      }).select();
+      createdKit = kitData?.[0];
     }
 
-    return NextResponse.json({ success: true, brand: createdBrand });
+    const formattedCreatedBrand: Brand = {
+      id: createdBrand.id,
+      workspaceId: createdBrand.workspace_id,
+      name: createdBrand.name,
+      slug: createdBrand.slug,
+      tagline: createdBrand.tagline || "",
+      description: createdBrand.description || "",
+      industry: createdBrand.industry || "General",
+      website: createdBrand.website || "https://",
+      isActive: createdBrand.is_active ?? true,
+      createdAt: createdBrand.created_at,
+      brandKit: {
+        id: createdKit?.id || `bk-${createdBrand.id}`,
+        brandId: createdBrand.id,
+        primaryColor,
+        secondaryColor,
+        accentColor,
+        fontHeading: "Plus Jakarta Sans",
+        fontBody: "Plus Jakarta Sans",
+        toneKeywords,
+        toneDirectives,
+        targetAudience,
+        doNotSay: [],
+        mustInclude: [],
+      },
+      knowledgeBase: [],
+      socialAccounts: [],
+    };
+
+    return NextResponse.json({ success: true, brand: formattedCreatedBrand });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to create brand" }, { status: 500 });
   }

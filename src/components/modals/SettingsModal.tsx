@@ -27,6 +27,11 @@ import {
   Sun,
   Moon,
   Search,
+  ArrowLeft,
+  X,
+  Plus,
+  CheckCircle2,
+  Database,
 } from "lucide-react";
 
 const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
@@ -46,9 +51,11 @@ export function SettingsModal() {
     setSettingsModalOpen,
     activeSettingsTab,
     organization,
+    updateOrganization,
     workspaces,
     activeWorkspaceId,
     setActiveWorkspace,
+    createWorkspace,
     memberships,
     inviteMember,
     updateMemberRole,
@@ -62,6 +69,19 @@ export function SettingsModal() {
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>(activeSettingsTab || "Organization");
+
+  // Organization form state
+  const [orgName, setOrgName] = useState(organization.name);
+  const [orgBillingEmail, setOrgBillingEmail] = useState(organization.billingEmail || "");
+  const [orgCustomDomain, setOrgCustomDomain] = useState(organization.customDomain || "hub.aivonholdings.com");
+  const [isSavingOrg, setIsSavingOrg] = useState(false);
+  const [orgSaveMessage, setOrgSaveMessage] = useState<string | null>(null);
+
+  // Sub-company / Workspace creation state
+  const [newWsName, setNewWsName] = useState("");
+  const [newWsTimezone, setNewWsTimezone] = useState("UTC");
+  const [isCreatingWs, setIsCreatingWs] = useState(false);
+  const [wsSuccessMsg, setWsSuccessMsg] = useState<string | null>(null);
 
   // Keep synced with store
   React.useEffect(() => {
@@ -124,6 +144,29 @@ export function SettingsModal() {
     }
   };
 
+  const handleSaveOrg = async () => {
+    setIsSavingOrg(true);
+    await updateOrganization({
+      name: orgName,
+      billingEmail: orgBillingEmail,
+      customDomain: orgCustomDomain,
+    });
+    setIsSavingOrg(false);
+    setOrgSaveMessage("✓ Organization profile saved to Supabase database.");
+    setTimeout(() => setOrgSaveMessage(null), 4000);
+  };
+
+  const handleCreateWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWsName.trim()) return;
+    setIsCreatingWs(true);
+    await createWorkspace(newWsName.trim(), newWsTimezone);
+    setIsCreatingWs(false);
+    setNewWsName("");
+    setWsSuccessMsg(`✓ Sub-company "${newWsName.trim()}" successfully created and saved to database!`);
+    setTimeout(() => setWsSuccessMsg(null), 5000);
+  };
+
   const filteredLogs = auditLogs.filter(
     (l) =>
       l.action.toLowerCase().includes(auditSearch.toLowerCase()) ||
@@ -142,7 +185,17 @@ export function SettingsModal() {
         <div className="flex h-[82vh] flex-col md:flex-row">
           {/* Settings Left Navigation */}
           <div className="w-full md:w-60 border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 p-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-y-auto flex-shrink-0">
-            <div className="hidden md:block px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            {/* PROMINENT BACK TO DASHBOARD BUTTON */}
+            <button
+              type="button"
+              onClick={() => setSettingsModalOpen(false)}
+              className="flex items-center gap-2 px-3 py-2.5 mb-2 rounded-xl text-xs font-bold text-slate-800 hover:text-slate-950 bg-slate-200/90 hover:bg-slate-300 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 transition-all w-full border border-slate-300/80 dark:border-white/10 shadow-sm shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4 text-[var(--brand-primary)]" />
+              <span>Back to Dashboard</span>
+            </button>
+
+            <div className="hidden md:block px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               System Settings
             </div>
 
@@ -167,29 +220,80 @@ export function SettingsModal() {
           </div>
 
           {/* Settings Content Area */}
-          <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-white dark:bg-slate-900/40">
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-white dark:bg-slate-900/40 relative">
+            {/* Header with Back button & Close X icon */}
+            <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-slate-200 dark:border-white/10">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSettingsModalOpen(false)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 transition-all border border-slate-200 dark:border-white/10"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>Back to Dashboard</span>
+                </button>
+                <span className="text-xs text-slate-400 font-mono hidden sm:inline">&bull;</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold hidden sm:inline">
+                  {activeTab} Settings
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSettingsModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                title="Close Settings (Esc)"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
             {/* TAB: Organization */}
             {activeTab === "Organization" && (
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Organization Profile</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Parent holding entity managing global billing, security governance, and workspaces.
-                  </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Organization Profile</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Parent holding entity managing global billing, security governance, and sub-company workspaces.
+                    </p>
+                  </div>
+
+                  {orgSaveMessage && (
+                    <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600 text-xs font-semibold text-emerald-800 dark:text-emerald-200 flex items-center gap-1.5 shadow-sm">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span>{orgSaveMessage}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input label="Organization Name" defaultValue={organization.name} />
+                  <Input
+                    label="Organization Name"
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                    placeholder="e.g. techbridge Holdings"
+                  />
                   <Input label="Slug / Identifier" defaultValue={organization.slug} disabled />
-                  <Input label="Billing Contact" defaultValue={organization.billingEmail} />
-                  <Input label="Custom Domain" defaultValue={organization.customDomain || "hub.aivonholdings.com"} />
+                  <Input
+                    label="Billing Contact"
+                    value={orgBillingEmail}
+                    onChange={(e) => setOrgBillingEmail(e.target.value)}
+                    placeholder="user1@gmail.com"
+                  />
+                  <Input
+                    label="Custom Domain"
+                    value={orgCustomDomain}
+                    onChange={(e) => setOrgCustomDomain(e.target.value)}
+                    placeholder="hub.aivonholdings.com"
+                  />
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/10 space-y-3">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-semibold text-white">White-Label Branding</h4>
-                      <p className="text-xs text-slate-400">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white">White-Label Branding</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Remove OmniBrand branding and serve client portals under custom CNAME domain.
                       </p>
                     </div>
@@ -197,14 +301,14 @@ export function SettingsModal() {
                       {organization.plan === "ENTERPRISE" ? "Unlocked (Enterprise)" : "Requires Enterprise"}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-emerald-400">
+                  <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
                     <ShieldCheck className="h-4 w-4" />
-                    <span>Active: Powered by Aivon Custom Domain SSL</span>
+                    <span>Active: Powered by Custom Domain SSL</span>
                   </div>
                 </div>
 
                 <div className="pt-2 flex justify-end">
-                  <Button variant="brand" size="sm" onClick={() => alert("Organization settings saved.")}>
+                  <Button variant="brand" size="sm" onClick={handleSaveOrg} isLoading={isSavingOrg} className="shadow-glow-brand">
                     Save Changes
                   </Button>
                 </div>
@@ -214,49 +318,143 @@ export function SettingsModal() {
             {/* TAB: Workspace */}
             {activeTab === "Workspace" && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-base font-semibold text-white">Active Workspace Settings</h3>
-                    <p className="text-xs text-slate-400">
-                      Agency client or operating division. All data is cryptographically scoped to workspaceId.
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-[var(--brand-primary)]" />
+                      <span>Sub-Companies & Operating Workspaces</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Manage sub-companies, operating divisions, and client workspaces. All campaigns and assets are saved to Supabase.
                     </p>
                   </div>
-                  <Badge variant="brand">{activeWorkspace.name}</Badge>
+                  <Badge variant="brand">{activeWorkspace?.name || "Active Workspace"}</Badge>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input label="Workspace Name" defaultValue={activeWorkspace.name} />
-                  <Input label="Workspace Slug" defaultValue={activeWorkspace.slug} disabled />
-                  <Input label="Operating Timezone" defaultValue={activeWorkspace.timezone} />
-                  <Input label="Workspace ID" defaultValue={activeWorkspace.id} disabled />
-                </div>
+                {wsSuccessMsg && (
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600 text-xs font-semibold text-emerald-800 dark:text-emerald-200 flex items-center gap-2 shadow-sm">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>{wsSuccessMsg}</span>
+                  </div>
+                )}
 
-                <div>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                    Available Workspaces
+                {/* CREATE NEW SUB-COMPANY / WORKSPACE FORM */}
+                <form
+                  onSubmit={handleCreateWorkspace}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 space-y-3"
+                >
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <Plus className="h-4 w-4 text-[var(--brand-primary)] stroke-[2.5]" />
+                    <span>Add New Sub-Company / Operating Workspace</span>
                   </h4>
-                  <div className="space-y-2">
-                    {workspaces.map((ws) => (
-                      <div
-                        key={ws.id}
-                        onClick={() => setActiveWorkspace(ws.id)}
-                        className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                          ws.id === activeWorkspaceId
-                            ? "bg-[var(--brand-primary)]/10 border-[var(--brand-primary)]/40 text-white"
-                            : "bg-slate-950/40 border-white/10 hover:border-white/20 text-slate-300"
-                        }`}
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Creates an isolated workspace and core brand in the Supabase PostgreSQL database.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
+                    <div className="sm:col-span-7">
+                      <input
+                        type="text"
+                        value={newWsName}
+                        onChange={(e) => setNewWsName(e.target.value)}
+                        placeholder="e.g. Techbridge UK, Apex Media, etc."
+                        className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[var(--brand-primary)]"
+                        required
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <select
+                        value={newWsTimezone}
+                        onChange={(e) => setNewWsTimezone(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-[var(--brand-primary)]"
                       >
-                        <div>
-                          <p className="text-xs font-semibold text-white">{ws.name}</p>
-                          <p className="text-[11px] text-slate-400">Timezone: {ws.timezone}</p>
+                        <option value="UTC">UTC (+00:00)</option>
+                        <option value="America/New_York">US Eastern (EST)</option>
+                        <option value="America/Los_Angeles">US Pacific (PST)</option>
+                        <option value="Europe/London">London (GMT)</option>
+                        <option value="Asia/Kolkata">India (IST +05:30)</option>
+                        <option value="Asia/Tokyo">Tokyo (JST +09:00)</option>
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Button
+                        type="submit"
+                        variant="brand"
+                        size="sm"
+                        isLoading={isCreatingWs}
+                        className="w-full h-full text-xs font-bold shadow-glow-brand"
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        <span>Create in DB</span>
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+
+                {/* CURRENT ACTIVE WORKSPACE SETTINGS */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Active Workspace Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input label="Workspace Name" defaultValue={activeWorkspace?.name || ""} />
+                    <Input label="Workspace Slug" defaultValue={activeWorkspace?.slug || ""} disabled />
+                    <Input label="Operating Timezone" defaultValue={activeWorkspace?.timezone || "UTC"} />
+                    <Input label="Workspace ID" defaultValue={activeWorkspace?.id || ""} disabled />
+                  </div>
+                </div>
+
+                {/* AVAILABLE WORKSPACES LIST */}
+                <div className="space-y-2.5">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                    <span>Available Sub-Companies & Workspaces ({workspaces.length})</span>
+                    <span className="text-[10px] text-slate-400 lowercase font-mono">click to switch active scope</span>
+                  </h4>
+
+                  <div className="space-y-2">
+                    {workspaces.map((ws) => {
+                      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ws.id);
+                      const isSelected = ws.id === activeWorkspaceId;
+
+                      return (
+                        <div
+                          key={ws.id}
+                          onClick={() => setActiveWorkspace(ws.id)}
+                          className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-[var(--brand-primary)]/10 border-[var(--brand-primary)] text-slate-900 dark:text-white ring-1 ring-[var(--brand-primary)]/40 shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 text-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-blue-100 dark:bg-white/10 text-blue-700 dark:text-[var(--brand-primary)]">
+                              <Building2 className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs font-bold text-slate-900 dark:text-white">{ws.name}</p>
+                                {isUuid ? (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono font-semibold">
+                                    Supabase DB
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 font-mono">
+                                    Workspace
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400">Timezone: {ws.timezone} &bull; ID: {ws.id.slice(0, 8)}...</p>
+                            </div>
+                          </div>
+
+                          {isSelected ? (
+                            <Badge variant="brand" size="sm">Active</Badge>
+                          ) : (
+                            <Button variant="ghost" size="sm" className="text-xs">Switch</Button>
+                          )}
                         </div>
-                        {ws.id === activeWorkspaceId ? (
-                          <Badge variant="brand" size="sm">Active</Badge>
-                        ) : (
-                          <Button variant="ghost" size="sm">Switch</Button>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

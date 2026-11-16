@@ -87,6 +87,11 @@ interface BrandState {
   setActiveBrand: (brandId: string) => void;
   updateBrandKit: (brandId: string, updates: Partial<BrandKit>) => void;
   createBrand: (brand: Omit<Brand, "id" | "createdAt">) => void;
+  createWorkspace: (name: string, timezone?: string) => Promise<Workspace | null>;
+  updateOrganization: (updates: { name: string; billingEmail?: string; customDomain?: string }) => Promise<void>;
+  fetchTenancyData: () => Promise<void>;
+  setWorkspaces: (workspaces: Workspace[]) => void;
+  setBrands: (brands: Brand[]) => void;
   rotateApiKey: (credentialId: string) => void;
   inviteMember: (email: string, role: MemberRole) => void;
   updateMemberRole: (membershipId: string, role: MemberRole) => void;
@@ -648,25 +653,159 @@ export const useAppStore = create<AppStore>()(
         set({ brands, auditLogs: [auditLog, ...get().auditLogs] });
       },
 
+      fetchTenancyData: async () => {
+        try {
+          const res = await fetch("/api/tenancy");
+          const data = await res.json();
+          if (data) {
+            if (data.organization?.name) {
+              set({ organization: data.organization });
+            }
+            if (data.workspaces && data.workspaces.length > 0) {
+              set((state) => ({
+                workspaces: data.workspaces,
+                activeWorkspaceId: state.activeWorkspaceId || data.workspaces[0].id,
+              }));
+            }
+            if (data.brands && data.brands.length > 0) {
+              set((state) => ({
+                brands: data.brands,
+                activeBrandId: state.activeBrandId || data.brands[0].id,
+                selectedBrandId: state.selectedBrandId || data.brands[0].id,
+              }));
+            }
+          }
+        } catch (err) {
+          console.warn("fetchTenancyData error:", err);
+        }
+      },
+
+      setWorkspaces: (workspaces) => set({ workspaces }),
+      setBrands: (brands) => set({ brands }),
+
+      createWorkspace: async (name: string, timezone = "UTC") => {
+        const tempId = `ws-${Date.now()}`;
+        const newWs: Workspace = {
+          id: tempId,
+          organizationId: get().organization.id,
+          name: name.trim(),
+          slug: name.trim().toLowerCase().replace(/[^a-z0-9]/g, "-"),
+          timezone,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        // Optimistically add to store
+        set((state) => ({
+          workspaces: [...state.workspaces, newWs],
+          activeWorkspaceId: tempId,
+        }));
+
+        // Persist to Supabase DB via /api/tenancy
+        try {
+          const res = await fetch("/api/tenancy", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: name.trim(),
+              timezone,
+              organizationId: get().organization.id,
+            }),
+          });
+          const result = await res.json();
+          if (result?.workspace?.id) {
+            const realWs: Workspace = {
+              ...newWs,
+              id: result.workspace.id,
+              organizationId: result.workspace.organization_id || newWs.organizationId,
+              slug: result.workspace.slug || newWs.slug,
+            };
+            set((state) => ({
+              workspaces: state.workspaces.map((w) => (w.id === tempId ? realWs : w)),
+              activeWorkspaceId: realWs.id,
+            }));
+            get().fetchTenancyData();
+            return realWs;
+          }
+        } catch (err) {
+          console.error("createWorkspace API error:", err);
+        }
+        return newWs;
+      },
+
+      updateOrganization: async (updates) => {
+        set((state) => ({
+          organization: {
+            ...state.organization,
+            ...updates,
+          },
+        }));
+
+        try {
+          await fetch("/api/tenancy", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: updates.name,
+              organizationId: get().organization.id,
+            }),
+          });
+        } catch (err) {
+          console.error("updateOrganization API error:", err);
+        }
+      },
+
       createBrand: (newBrandData) => {
-        const newId = `brand-${Date.now()}`;
+        const tempId = `brand-${Date.now()}`;
         const newBrand: Brand = {
           ...newBrandData,
-          id: newId,
+          id: tempId,
           createdAt: new Date().toISOString(),
           brandKit: {
             ...newBrandData.brandKit,
-            id: `bk-${newId}`,
-            brandId: newId,
+            id: `bk-${tempId}`,
+            brandId: tempId,
           },
         };
 
         set((state) => ({
           brands: [...state.brands, newBrand],
-          activeBrandId: newId,
-          selectedBrandId: newId,
+          activeBrandId: tempId,
+          selectedBrandId: tempId,
         }));
         get().applyBrandColorsToDom(newBrand);
+
+        // Persist to Supabase DB via /api/brands
+        fetch("/api/brands", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            workspaceId: get().activeWorkspaceId,
+            name: newBrandData.name,
+            tagline: newBrandData.tagline,
+            description: newBrandData.description,
+            industry: newBrandData.industry,
+            website: newBrandData.website,
+            primaryColor: newBrandData.brandKit?.primaryColor,
+            secondaryColor: newBrandData.brandKit?.secondaryColor,
+            accentColor: newBrandData.brandKit?.accentColor,
+            toneKeywords: newBrandData.brandKit?.toneKeywords,
+            toneDirectives: newBrandData.brandKit?.toneDirectives,
+            targetAudience: newBrandData.brandKit?.targetAudience,
+          }),
+        })
+          .then((res) => res.json())
+          .then((resData) => {
+            if (resData?.brand?.id) {
+              const serverBrand = resData.brand;
+              set((state) => ({
+                brands: state.brands.map((b) => (b.id === tempId ? serverBrand : b)),
+                activeBrandId: state.activeBrandId === tempId ? serverBrand.id : state.activeBrandId,
+                selectedBrandId: state.selectedBrandId === tempId ? serverBrand.id : state.selectedBrandId,
+              }));
+            }
+          })
+          .catch((err) => console.warn("Failed to persist brand to Supabase:", err));
       },
 
       addSocialAccount: (brandId, account) => {

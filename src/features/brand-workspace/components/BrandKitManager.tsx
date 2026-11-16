@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppStore } from "@/store";
 import { Brand, BrandKit, BrandKnowledgeItem } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +29,24 @@ export function BrandKitManager() {
     updateBrandKit,
     createBrand,
     organization,
+    activeWorkspaceId,
   } = useAppStore();
 
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [brandSuccessMsg, setBrandSuccessMsg] = useState<string | null>(null);
+
+  // Sync brands from Supabase database on mount
+  useEffect(() => {
+    fetch("/api/brands")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.brands && Array.isArray(data.brands) && data.brands.length > 0) {
+          useAppStore.getState().setBrands(data.brands);
+        }
+      })
+      .catch((err) => console.warn("Failed to fetch brands:", err));
+  }, []);
 
   // Form edit states
   const [name, setName] = useState("");
@@ -127,9 +141,11 @@ export function BrandKitManager() {
         targetAudience,
       });
       setEditingBrand(null);
+      setBrandSuccessMsg(`✓ Brand "${editingBrand.name}" updated successfully.`);
+      setTimeout(() => setBrandSuccessMsg(null), 4000);
     } else if (isCreating) {
       createBrand({
-        workspaceId: brands[0]?.workspaceId || "ws-growth-lab",
+        workspaceId: activeWorkspaceId || brands[0]?.workspaceId || "ws-growth-lab",
         name,
         slug: name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
         tagline,
@@ -143,8 +159,8 @@ export function BrandKitManager() {
           primaryColor,
           secondaryColor,
           accentColor,
-          fontHeading: "Inter",
-          fontBody: "Inter",
+          fontHeading: "Plus Jakarta Sans",
+          fontBody: "Plus Jakarta Sans",
           toneKeywords,
           toneDirectives,
           targetAudience,
@@ -155,11 +171,20 @@ export function BrandKitManager() {
         socialAccounts: [],
       });
       setIsCreating(false);
+      setBrandSuccessMsg(`✓ Sub-company brand "${name}" saved directly to Supabase database!`);
+      setTimeout(() => setBrandSuccessMsg(null), 5000);
     }
   };
 
   return (
     <div className="space-y-6">
+      {brandSuccessMsg && (
+        <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600 text-xs font-semibold text-emerald-800 dark:text-emerald-200 flex items-center gap-2 shadow-sm animate-fadeIn">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+          <span>{brandSuccessMsg}</span>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

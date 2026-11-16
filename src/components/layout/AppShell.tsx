@@ -25,6 +25,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
 
+    // Sync tenancy data (organizations, workspaces, brands) from Supabase
+    const { fetchTenancyData } = useAppStore.getState();
+    fetchTenancyData();
+
     // Sync session from Supabase/server cookies if available
     fetch("/api/auth/session")
       .then((res) => res.json())
