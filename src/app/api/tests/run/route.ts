@@ -1,31 +1,57 @@
 import { NextResponse } from "next/server";
-import { runAdaptersTest } from "@/../tests/unit/adapters.test";
-import { runPolicyGateTest } from "@/../tests/unit/policy-gate.test";
-import { runAttributionTest } from "@/../tests/unit/attribution.test";
-import { runTenantIsolationTest } from "@/../tests/integration/tenant-isolation.test";
-import { runPublishingIdempotencyTest } from "@/../tests/integration/publishing-idempotency.test";
-import { runComposerFlowE2ETest } from "@/../tests/e2e/composer-flow.test";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET() {
   const results: Array<{ name: string; status: "PASSED" | "FAILED"; error?: string }> = [];
 
   const suites = [
-    { name: "Unit: Integration Adapters", fn: runAdaptersTest },
-    { name: "Unit: Dispatch Policy Gate", fn: runPolicyGateTest },
-    { name: "Unit: Multi-Touch Attribution", fn: runAttributionTest },
-    { name: "Integration: Tenant Isolation (403 Rejection)", fn: runTenantIsolationTest },
-    { name: "Integration: Publishing Idempotency & Jitter", fn: runPublishingIdempotencyTest },
-    { name: "E2E: Full Campaign Composer 5-Step Flow", fn: runComposerFlowE2ETest },
+    {
+      name: "Unit: Integration Adapters",
+      importFn: () =>
+        import("@/../tests/unit/adapters.test").then((m) => m.runAdaptersTest),
+    },
+    {
+      name: "Unit: Dispatch Policy Gate",
+      importFn: () =>
+        import("@/../tests/unit/policy-gate.test").then((m) => m.runPolicyGateTest),
+    },
+    {
+      name: "Unit: Multi-Touch Attribution",
+      importFn: () =>
+        import("@/../tests/unit/attribution.test").then((m) => m.runAttributionTest),
+    },
+    {
+      name: "Integration: Tenant Isolation (403 Rejection)",
+      importFn: () =>
+        import("@/../tests/integration/tenant-isolation.test").then(
+          (m) => m.runTenantIsolationTest
+        ),
+    },
+    {
+      name: "Integration: Publishing Idempotency & Jitter",
+      importFn: () =>
+        import("@/../tests/integration/publishing-idempotency.test").then(
+          (m) => m.runPublishingIdempotencyTest
+        ),
+    },
+    {
+      name: "E2E: Full Campaign Composer 5-Step Flow",
+      importFn: () =>
+        import("@/../tests/e2e/composer-flow.test").then(
+          (m) => m.runComposerFlowE2ETest
+        ),
+    },
   ];
 
   for (const suite of suites) {
     try {
-      await suite.fn();
+      const fn = await suite.importFn();
+      await fn();
       results.push({ name: suite.name, status: "PASSED" });
     } catch (err: any) {
-      results.push({ name: suite.name, status: "FAILED", error: err.message });
+      results.push({ name: suite.name, status: "FAILED", error: err?.message ?? String(err) });
     }
   }
 
