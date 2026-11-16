@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, isSupabaseConfiguredServer } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth/session";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET(req: NextRequest) {
   try {
     const isConfigured = isSupabaseConfiguredServer();

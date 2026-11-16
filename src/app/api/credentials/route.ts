@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { MOCK_API_CREDENTIALS, MOCK_AUDIT_LOGS } from "@/lib/mock-data/tenancy";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 const RotateKeySchema = z.object({
   credentialId: z.string(),
   workspaceId: z.string(),

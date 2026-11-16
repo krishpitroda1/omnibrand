@@ -3,6 +3,9 @@ import { createMfaSetup } from "@/lib/auth/mfa";
 import { getSession } from "@/lib/auth/session";
 import { writeAuditLog } from "@/lib/audit/audit-logger";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();

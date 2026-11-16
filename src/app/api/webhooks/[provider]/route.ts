@@ -3,6 +3,9 @@ import { verifyWebhookRequest } from "@/lib/webhook/signature";
 import { publishingQueue } from "@/lib/queue/publishing-queue";
 import { writeAuditLog } from "@/lib/audit/audit-logger";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { provider: string } }

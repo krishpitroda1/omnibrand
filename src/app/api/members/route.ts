@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { MOCK_MEMBERSHIPS, MOCK_USERS } from "@/lib/mock-data/tenancy";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 const InviteMemberSchema = z.object({
   email: z.string().email(),
   role: z.enum(["OWNER", "ADMIN", "MANAGER", "CREATOR", "ANALYST", "VIEWER"]),

@@ -7,6 +7,9 @@ import {
   MOCK_MEMBERSHIPS,
 } from "@/lib/mock-data/tenancy";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const workspaceId = searchParams.get("workspaceId") || request.headers.get("x-workspace-id");

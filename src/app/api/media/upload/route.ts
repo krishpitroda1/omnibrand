@@ -4,6 +4,9 @@ import { createPresignedUploadUrl } from "@/lib/media/storage";
 import { requirePermission } from "@/lib/auth/rbac";
 import { writeAuditLog } from "@/lib/audit/audit-logger";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

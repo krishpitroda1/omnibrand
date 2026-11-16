@@ -3,6 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MOCK_BRANDS } from "@/lib/mock-data/tenancy";
 import { Brand } from "@/types";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET(request: Request) {
   try {
     const supabaseAdmin = createAdminClient();
